@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_flame_playground/main_page.dart';
+import 'package:flame/components.dart';
+import 'package:flame/game.dart';
 
-void main() => runApp(const App());
+void main() => runApp(GameWidget(game: LenaGame()));
 
-class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+class LenaGame extends FlameGame {
+  double gravity = 0.9;
+  Vector2 velocity = Vector2(0, 0);
+
+  SpriteComponent lenaSprite = SpriteComponent();
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        title: 'Flutter Flame',
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: const MainPage(title: 'Flutter Main Page'),
-      );
+  Future<void>? onLoad() async {
+    await super.onLoad();
+
+    lenaSprite
+      ..sprite = await loadSprite('lena.png')
+      ..size = Vector2.all(100)
+      ..position = Vector2(100, 30);
+
+    add(lenaSprite);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    if (lenaSprite.y < size[1] - lenaSprite.height) {
+      velocity = Vector2(0, velocity.y += gravity);
+      lenaSprite.position += velocity * dt;
+    }
+  }
 }
